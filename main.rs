@@ -61,37 +61,37 @@ fn main() {
   let coeff_green  = 2.0 * cosine_green;
   let coeff_blue   = 2.0 * cosine_blue;
 
-  // some approximate constant for grabbing samples at every 0.5 seconds or so
-  let chunks       = 3000;
-
   let mut reader = hound::WavReader::open("file.wav").unwrap();
   let samples: Vec<_> = reader.samples::<i16>()
                         .map(|s| f64::from(s.unwrap()) / f64::from(std::i16::MAX)).collect();
 
-  let chunked_samples: Vec<_> = samples.chunks_exact(chunks).collect();
+  let arr_length         = samples.length();
+  let seconds            = 2400; // say each song is about 4 minutes
+  let samples_per_second = arr_length / seconds;
+
+  let chunked_samples: Vec<_> = samples.chunks_exact(samples_per_second).collect();
 
   let (mut red_q0, mut red_q1, mut red_q2, mut yel_q0, mut yel_q1, mut yel_q2)          = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   let (mut green_q0, mut green_q1, mut green_q2, mut blue_q0, mut blue_q1, mut blue_q2) = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
   for chunk in chunked_samples {
-    for samp in chunk {
+    // just check the first sample in each chunk. this way we're checking one sample per second of music
+    red_q0 = coeff_red * red_q1 - red_q2 + chunk[0];
+    red_q2 = red_q1;
+    red_q1 = red_q0;
 
-      red_q0 = coeff_red * red_q1 - red_q2 + samp;
-      red_q2 = red_q1;
-      red_q1 = red_q0;
+    yel_q0 = coeff_yellow * yel_q1 - yel_q2 + chunk[0];
+    yel_q2 = yel_q1;
+    yel_q1 = yel_q0;
 
-      yel_q0 = coeff_yellow * yel_q1 - yel_q2 + samp;
-      yel_q2 = yel_q1;
-      yel_q1 = yel_q0;
+    green_q0 = coeff_green * green_q1 - green_q2 + chunk[0];
+    green_q2 = green_q1;
+    green_q1 = green_q0;
 
-      green_q0 = coeff_green * green_q1 - green_q2 + samp;
-      green_q2 = green_q1;
-      green_q1 = green_q0;
-
-      blue_q0 = coeff_blue * blue_q1 - blue_q2 + samp;
-      blue_q2 = blue_q1;
-      blue_q1 = blue_q0;
-    }
+    blue_q0 = coeff_blue * blue_q1 - blue_q2 + chunk[0];
+    blue_q2 = blue_q1;
+    blue_q1 = blue_q0;
+    
 
     let r_real   = red_q1 - red_q2 * cosine_red;
     let r_imag   = red_q2 * sine_red;

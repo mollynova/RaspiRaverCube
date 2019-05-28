@@ -23,17 +23,19 @@ use hound;
 // that the wav files I'm feeding to the program are 44100Hz.
 
 fn main() {
+  // define PI const
   pub const PI: f64 = 3.14159265358979323846264338327950288f64;
-  let mut bits: Vec<_> = Vec::new();
-  let mut fin: Vec<_> = Vec::new();
 
+  // sample rate for all wav files that will be used as input
   let sample_rate: f64 = 44100.0;
 
+  // target frequency by color
   let red_freq: f64 = 464.0;
   let yellow_freq: f64 = 1331.0;
   let green_freq: f64 = 2198.0;
   let blue_freq: f64 = 3065;
 
+  // below: all values necessary to compute magnitude, by color 
   let block_size: f64 = 1.8;
 
   let k_red    = 0.5 + f64::from((block_size * red_freq)/sample_rate);
@@ -61,21 +63,28 @@ fn main() {
   let coeff_green  = 2.0 * cosine_green;
   let coeff_blue   = 2.0 * cosine_blue;
 
+  // use 'hound' crate to read all samples from wav file into a vector as i16 type
   let mut reader = hound::WavReader::open("file.wav").unwrap();
   let samples: Vec<_> = reader.samples::<i16>()
                         .map(|s| f64::from(s.unwrap()) / f64::from(std::i16::MAX)).collect();
 
+  // compute the number of samples that there are per second of music for the given wav file
   let arr_length         = samples.length();
   let seconds            = 2400; // say each song is about 4 minutes
   let samples_per_second = arr_length / seconds;
 
+  // break the vector of samples into a vector of vectors of samples, each of size 'samples_per_second'
   let chunked_samples: Vec<_> = samples.chunks_exact(samples_per_second).collect();
 
+  // initialize more variables for the algorithm (ongoing) to compute magnitude
   let (mut red_q0, mut red_q1, mut red_q2, mut yel_q0, mut yel_q1, mut yel_q2)          = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   let (mut green_q0, mut green_q1, mut green_q2, mut blue_q0, mut blue_q1, mut blue_q2) = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
+  // for each vector of samples in our vecctor of vectors (there are 'seconds' number of them, and each is size 'samples per second'
   for chunk in chunked_samples {
     // just check the first sample in each chunk. this way we're checking one sample per second of music
+    // it can be that arbitrary. I could have checked the last one, or the middle one, or the 37th one, as long as I'm being consistent
+    // it doesn't really matter
     red_q0 = coeff_red * red_q1 - red_q2 + chunk[0];
     red_q2 = red_q1;
     red_q1 = red_q0;
@@ -92,7 +101,6 @@ fn main() {
     blue_q2 = blue_q1;
     blue_q1 = blue_q0;
     
-
     let r_real   = red_q1 - red_q2 * cosine_red;
     let r_imag   = red_q2 * sine_red;
     let r_mag_sq = (r_real * r_real) + (r_imag * r_imag);

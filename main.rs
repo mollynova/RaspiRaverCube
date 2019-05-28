@@ -74,13 +74,17 @@ fn main() {
   let samples_per_second = arr_length / seconds;
 
   // break the vector of samples into a vector of vectors of samples, each of size 'samples_per_second'
+  // The idea is that there are -lots- of "samples" in a given wav file- probably hundreds of thousands for a file the 
+  // length of a typical song. If we were to examine every sample, our hardware could never keep up with lights changing
+  // that quickly, and even if it could our eyes certainly couldn't. So, we figure out how many samples are in the file 
+  // for each second of music, so that we can just pick one of them to play per second instead of trying to play them all.
   let chunked_samples: Vec<_> = samples.chunks_exact(samples_per_second).collect();
 
   // initialize more variables for the algorithm (ongoing) to compute magnitude
   let (mut red_q0, mut red_q1, mut red_q2, mut yel_q0, mut yel_q1, mut yel_q2)          = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   let (mut green_q0, mut green_q1, mut green_q2, mut blue_q0, mut blue_q1, mut blue_q2) = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-  // for each vector of samples in our vecctor of vectors (there are 'seconds' number of them, and each is size 'samples per second'
+  // for each vector of samples in our vector of vectors (there are 'seconds' number of them, and each is size 'samples per second'
   for chunk in chunked_samples {
     // just check the first sample in each chunk. this way we're checking one sample per second of music
     // it can be that arbitrary. I could have checked the last one, or the middle one, or the 37th one, as long as I'm being consistent
@@ -123,9 +127,21 @@ fn main() {
 
     // now I have my magnitude values and can check to see which is the greatest, i.e. which 
     // color lights I should turn on on my LED cube
+    
+    /*
+      Note: from here I'll need to use a GPIO crate for Rust so that I can communicate with my LED cube and tell it
+      which lights need to come on. Beyond just turning the lights on, I need to of course tell them how long to stay
+      on (one second, of course, so the light doesn't ever go fully dark while the song is playing) and tell them to
+      shut off after that time has elapsed. I might have them stay on for 1.1-1.2 seconds to give it a laggy effect
+      and see if it looks cool. 
+      
+      I have not included this code because I have yet to finish building the cube (it'll be done this week). Until the 
+      cube is done there's not really any way for me to test my code for interacting with it, so I'll leave my
+      experimentation out of here as it is likely erroneous and will see heavy modifications. 
+    */
 
     if r_mag > y_mag && r_mag > g_mag && r_mag > b_mag {
-       // light up the red lights
+       // light up the red lightU
     } else if y_mag > r_mag && y_mag > g_mag && y_mag > b_mag {
        // light up the yellow lights
     } else if g_mag > r_mag && g_mag > y_mag && g_mag > b_mag {
@@ -133,7 +149,7 @@ fn main() {
     } else {
        // light up the blue lights
        // note: this will also catch any case where the Goertzel algo returns the same likelihood
-       // that a sample is multiple frequencies which is really unlikely but I guess possible if
+       // that a sample is multiple frequencies, which is really unlikely but possible if
        // the sample happens to be exactly between two of the target frequencies
     }
   }

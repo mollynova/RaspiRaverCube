@@ -6,27 +6,6 @@ use std::time::Duration;
 
 use rppal::gpio::{Gpio, Mode, Level};
 
-// Typically, frequencies in music fall in the range of 30Hz ~ 3500Hz. This would be the low end of bass versus
-// the higher end of a violin. I have 4 colors in my LED cube, Red Blue Green Yellow. So I'm going to divide this
-// estimated range into 4 quadrants, and assign each quadrant one of the four colors. Then, I'm going to utilize
-// the Goertzel algorithm. What the Goertzel algorithm will return is the -likelihood- that a sample is close to
-// a specific frequency. I'm going to run each sample against the Goertzel algorithm four times- for 4 frequencies-
-// each of which will be the middle frequency of each of the four quadrants. Whichever one of these 4 trials returns
-// the highest result will be the one which most closely matches the frequency of the sample, and I will have it
-// light up the appropriate colors on the LED cube. 
-
-// Computing color ranges: 3500 - 30 = 3470. 3470 / 4 ~= 867. 867 / 2 ~= 434 + 30 = 464. 464 + 867 = 1331. 
-// 1331 + 867 = 2198. 2198 + 867 = 3065. 
-
-// Target frequencies:
-// Red:    464 Hz
-// Yellow: 1331 Hz
-// Green:  2198 Hz
-// Blue:   3065 Hz 
-
-// I'm going to use a sample rate of 44100 Hz, which is standard for most music files. I will of course make sure
-// that the wav files I'm feeding to the program are 44100Hz.
-
 fn main() {
   // define PI const
   pub const PI: f64 = 3.14159265358979323846264338327950288f64;

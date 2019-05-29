@@ -1,3 +1,5 @@
+OVERVIEW:
+
 Raspberry Pi B+ Raver Cube
 
 For my project, I'm building a 4x4x4 LED cube with gradient colors. If I get far enough with the hardware, each light will be
@@ -7,8 +9,55 @@ The raspberry pi will be running software I've written which takes a wav file as
 odd samples at a rate of ~0.5 seconds. It utilizes the Goertzel algorithm to determine the frequency of the sine wave (tone) for each
 read sample, and based on the range of the frequency, lights up a particular set of colors on the cube again via GPIO. I will be using
 a GPIO crate for Rust. 
+----------
+SOFTWARE:
+
+Typically, frequencies in music fall in the range of 30Hz ~ 3500Hz. This would be the low end of bass versus
+the higher end of a violin. I have 4 colors in my LED cube, Red Blue Green Yellow. Thus, I've divided this 
+approximate range of frequencies into four equal quadrants and assigned each a color.
+
+As stated in the overview, I use the 'hound' crate to parse a .wav file into a vector of samples. Each sample
+is essentially a sine wave representing the particular frequency of the sample (tone). I read approxiately
+one sample per second while the song plays and apply the Goertzel algorithm to it for a number of target
+frequencies. The Goertzel algorithm essentially returns a numeric value representing the magnitude, or likelihood that the
+given sample is the target frequency. The higher the number it returns, the higher the likelihood. So for each
+sample I test, I will apply the Goertzel algorithm to it for 4 different target frequencies. These frequencies 
+will be the dead center of each "color quadrant" in my frequency range. Whichever of the 4 returns the highest
+magnitude is the frequency that that particular sample is closest to, so I light up the color LEDs associated
+with that quadrant.
+
+Computing color ranges: 3500 - 30 = 3470  # total estimated frequency range is 3470Hz
+                        3470 / 4 ~= 867   # with 4 colors, each quadrant will be about 867Hz
+                        867 / 2 ~= 434    # from the edge of one quadrant to the center of the next, which will be our
+                                          # target frequency, is about 434Hz
+                        
+                        434 + 30 = 464    # 434 plus the offset from our range is the first quadrant target frequency
+                        464 + 867 = 1331. # to the center of the next quadrant is the second quadrant target frequency
+                        1331 + 867 = 2198 # the third target frequency
+                        2198 + 867 = 3065 # the fourth target frequency
+
+Target frequencies:
+  Red:    464 Hz
+  Yellow: 1331 Hz
+  Green:  2198 Hz
+  Blue:   3065 Hz 
+
+           
+          RED                   YELLOW                       GREEN                      BLUE
+|30---Target:434---867||868---Target:1331---1765||1766---Target:2198---2732||2733---Target:3065---3500|
+
+When implementing the Goertzel algorithm, I use a sample rate of 44100Hz, which is standard for most music files. 
+Because I'm only reading one sample per second, this isn't particularly important. There could be hundreds of thousands
+of samples in a song, so neither the hardware nor my eyes could keep up if I tried to have it display them all.
+
+NOTE: I will likely want to add more variety to my display patterns once I've finished soldering the hardware. My plan is to
+create 3 more target frequencies that I'm testing for, which lie in between the initial 4. If a frequency is closer to the
+intersection of red and yellow than it is to either red or yellow, I'll probably have it light up both red and yellow lights,
+and do the same for yellow/green and green/blue. I might have the red lights start lighting from bottom to top and the yellow
+light from top down simultaneously and see what kind of an effect I can get.
 
 ----------
+HARDWARE:
 
 Layout of the cube:
 
@@ -30,5 +79,7 @@ Layout of the cube:
    So, this will take 16 GPIO pins. 4 pins will be associated with each color, one for each layer of the cube, and toggled 
    with the rppal crate for accessing GPIO pins in Rust. 
    
+   I'm using a 12V 3A external power supply for this project. Red Green and Yellow lights are getting 10V of power and blue
+   lights are getting 12V.
    
 

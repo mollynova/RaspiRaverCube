@@ -7,3 +7,28 @@ The raspberry pi will be running software I've written which takes a wav file as
 odd samples at a rate of ~0.5 seconds. It utilizes the Goertzel algorithm to determine the frequency of the sine wave (tone) for each
 read sample, and based on the range of the frequency, lights up a particular set of colors on the cube again via GPIO. I will be using
 a GPIO crate for Rust. 
+
+----------
+
+Layout of the cube:
+
+  -4x4x4 LEDs soldered together, which can be thought of as four 4x4 flat planes of LEDs. 
+   The bottom layer is "layer 1" and the top is "layer 4"
+   
+   The layers are laid out as follows, where R = red, Y = yellow, G = green, B = blue:
+   
+   Layer 1      Layer 2      Layer 3      Layer 4
+   
+   B G Y R      G B R Y      Y R B G      R Y G B
+   G B R Y      B G Y R      R Y G B      Y R B G
+   Y R B G      R Y G B      B G Y R      G B R Y
+   R Y G B      Y R B G      G B R Y      B G Y R
+   
+   For each layer, like colors are all connected together (along with transistors, resistors, and a 12V 3A power supply)
+   Each layer has 4 lights of each color
+   Each grouping of 4 connected lights per layer is uniquely addressable
+   So, this will take 16 GPIO pins. 4 pins will be associated with each color, one for each layer of the cube, and toggled 
+   with the rppal crate for accessing GPIO pins in Rust. 
+   
+   
+

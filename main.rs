@@ -1,5 +1,10 @@
 use std::f64;
+extern crate rppal;
 use hound;
+use std::thread;
+use std::time::Duration;
+
+use rppal::gpio::{Gpio, Mode, Level};
 
 // Typically, frequencies in music fall in the range of 30Hz ~ 3500Hz. This would be the low end of bass versus
 // the higher end of a violin. I have 4 colors in my LED cube, Red Blue Green Yellow. So I'm going to divide this
@@ -129,28 +134,156 @@ fn main() {
     // color lights I should turn on on my LED cube
     
     /*
-      Note: from here I'll need to use a GPIO crate for Rust so that I can communicate with my LED cube and tell it
+      Note: from here I'll need to use rppal, a GPIO crate for Rust, to communicate with my LED cube and tell it
       which lights need to come on. Beyond just turning the lights on, I need to of course tell them how long to stay
       on (one second, of course, so the light doesn't ever go fully dark while the song is playing) and tell them to
       shut off after that time has elapsed. I might have them stay on for 1.1-1.2 seconds to give it a laggy effect
       and see if it looks cool. 
       
-      I have not included this code because I have yet to finish building the cube (it'll be done this week). Until the 
-      cube is done there's not really any way for me to test my code for interacting with it, so I'll leave my
-      experimentation out of here as it is likely erroneous and will see heavy modifications. 
+      I need to assign 4 GPIO pins to each color. For each of the 4 layers in the cube, like colors are soldered to like. 
+      Each layer has 4 LEDs of each color. We can choose arbitrarily; the raspberry pi 3 b+ has 24 GPIO pins.
     */
-
+    
+    // set GPIO pins values for each color
+    // note that "gpio" from rppal uses BCM pin numbering
+    let r1_GPIO: u8 = 2;
+    let r2_GPIO: u8 = 3;
+    let r3_GPIO: u8 = 4;
+    let r4_GPIO: u8 = 17;
+    
+    let y1_GPIO: u8 = 27;
+    let y2_GPIO: u8 = 22;
+    let y3_GPIO: u8 = 10;
+    let y4_GPIO: u8 = 9;
+    
+    let g1_GPIO: u8 = 5;
+    let g2_GPIO: u8 = 6;
+    let g3_GPIO: u8 = 13;
+    let g4_GPIO: u8 = 19;
+    
+    let b1_GPIO: u8 = 12;
+    let b2_GPIO: u8 = 16;
+    let b3_GPIO: u8 = 20;
+    let b4_GPIO: u8 = 21;
+    
+    // declare the 16 GPIO pins and set their modes to "output"
+    let mut r1_gpio = Gpio::new().unwrap();
+    r1_gpio.set_mode(r1_GPIO, Mode::Output);
+    let mut r2_gpio = Gpio::new().unwrap();
+    r2_gpio.set_mode(r2_GPIO, Mode::Output);
+    let mut r3_gpio = Gpio::new().unwrap();
+    r3_gpio.set_mode(r3_GPIO, Mode::Output);
+    let mut r4_gpio = Gpio::new().unwrap();
+    r4_gpio.set_mode(r4_GPIO, Mode::Output);
+    
+    let mut y1_gpio = Gpio::new().unwrap();
+    y1_gpio.set_mode(y1_GPIO, Mode::Output);
+    let mut y2_gpio = Gpio::new().unwrap();
+    y2_gpio.set_mode(y2_GPIO, Mode::Output);
+    let mut y3_gpio = Gpio::new().unwrap();
+    y3_gpio.set_mode(y3_GPIO, Mode::Output);
+    let mut y4_gpio = Gpio::new().unwrap();
+    y4_gpio.set_mode(y4_GPIO, Mode::Output);
+    
+    let mut g1_gpio = Gpio::new().unwrap();
+    g1_gpio.set_mode(g1_GPIO, Mode::Output);
+    let mut g2_gpio = Gpio::new().unwrap();
+    g2_gpio.set_mode(g2_GPIO, Mode::Output);
+    let mut g3_gpio = Gpio::new().unwrap();
+    g3_gpio.set_mode(g3_GPIO, Mode::Output);
+    let mut g4_gpio = Gpio::new().unwrap();
+    g4_gpio.set_mode(g4_GPIO, Mode::Output);
+    
+    let mut b1_gpio = Gpio::new().unwrap();
+    b1_gpio.set_mode(b1_GPIO, Mode::Output);
+    let mut b2_gpio = Gpio::new().unwrap();
+    b2_gpio.set_mode(b2_GPIO, Mode::Output);
+    let mut b3_gpio = Gpio::new().unwrap();
+    b3_gpio.set_mode(b3_GPIO, Mode::Output);
+    let mut b4_gpio = Gpio::new().unwrap();
+    b4_gpio.set_mode(b4_GPIO, Mode::Output);
+    
+    // note: I'm playing with the idea of having the colors in each layer light up one at a time in
+    // quarters of a second instead of all at once for 1 second. I might change this
     if r_mag > y_mag && r_mag > g_mag && r_mag > b_mag {
-       // light up the red lightU
+       // light up r1_GPIO - r4_GPIO
+       r1_gpio.write(r1_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       r1_gpio.write(r1_GPIO, Level::Low);
+      
+       r2_gpio.write(r2_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       r2_gpio.write(r2_GPIO, Level::Low);
+      
+       r3_gpio.write(r3_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       r3_gpio.write(r3_GPIO, Level::Low);
+      
+       r4_gpio.write(r4_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       r4_gpio.write(r4_GPIO, Level::Low);
+       
     } else if y_mag > r_mag && y_mag > g_mag && y_mag > b_mag {
-       // light up the yellow lights
+       // light up y1_GPIO - y4_GPIO
+      
+       y1_gpio.write(y1_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       y1_gpio.write(y1_GPIO, Level::Low);
+      
+       y2_gpio.write(y2_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       y2_gpio.write(y2_GPIO, Level::Low);
+      
+       y3_gpio.write(y3_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       y3_gpio.write(y3_GPIO, Level::Low);
+      
+       y4_gpio.write(y4_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       y4_gpio.write(y4_GPIO, Level::Low);
+      
     } else if g_mag > r_mag && g_mag > y_mag && g_mag > b_mag {
        // light up the green lights
+      
+       g1_gpio.write(g1_GPIO, Level::High);
+       thread::sleep(duration::from_millis(250));
+       g1_gpio.write(g1_GPIO, Level::Low);
+      
+       g2_gpio.write(g2_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       g2_gpio.write(g2_GPIO, Level::Low);
+      
+       g3_gpio.write(g3_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       g3_gpio.write(g3_GPIO, Level::Low);
+      
+       g4_gpio.write(g4_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       g4_gpio.write(g4_GPIO, Level::Low);
     } else {
        // light up the blue lights
        // note: this will also catch any case where the Goertzel algo returns the same likelihood
        // that a sample is multiple frequencies, which is really unlikely but possible if
        // the sample happens to be exactly between two of the target frequencies
+      
+       b1_gpio.write(b1_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       b1_gpio.write(b1_GPIO, Level::Low);
+      
+       b2_gpio.write(b2_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       b2_gpio.write(b2_GPIO, Level::Low);
+      
+       b3_gpio.write(b3_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       b3_gpio.write(b3_GPIO, Level::Low);
+      
+       b4_gpio.write(b4_GPIO, Level::High);
+       thread::sleep(Duration::from_millis(250));
+       b4_gpio.write(b4_GPIO, Level::Low);
     }
   }
+  // last thing to do is shut off all the lights and exit!
+  // note: not sure yet if the program exiting will auto-shut off the lights or not since there's an external
+  // power supply. assuming this has to be done manually
 }

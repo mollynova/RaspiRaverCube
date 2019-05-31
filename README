@@ -82,4 +82,16 @@ Layout of the cube:
    I'm using a 12V 3A external power supply for this project. Red Green and Yellow lights are getting 10V of power and blue
    lights are getting 12V.
    
+---------------
+TESTING:
 
+For the first part of my testing, I'm just making sure the Goertzel algorithm is working properly. I used "audiocheck.net" to
+generate and download 1-second-long .wav files at 400Hz, 1400Hz, 2200Hz, and 3065Hz. The first should trigger the "turn on
+red lights" condition, the second should trigger the yellow lights, third green, and fourth blue.
+
+My next test, once I knew the algorithm was working properly, was to make sure my rppal code was working as well. I did this in
+the breadboard stage of hardware development. I attached my external power supply to power and ground on my breadboard. Then, I
+connected the middle transistor pin on a single row of lights to a GPIO pin on my raspberry pi. I wrote a simple tester function
+that would use rppal syntax to set that particular GPIO pin to "output" mode, and turn on the lights. 
+
+Once I'd gotten the algorithm working and the lights triggering correctly, everything else was basically just repetition. 

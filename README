@@ -86,7 +86,7 @@ Layout of the cube:
 TESTING:
 
 For the first part of my testing, I'm just making sure the Goertzel algorithm is working properly. I used "audiocheck.net" to
-generate and download 1-second-long .wav files at 400Hz, 1400Hz, 2200Hz, and 3065Hz. The first should trigger the "turn on
+generate and download 1-second-long .wav files at 400Hz, 1400Hz, 2200Hz, and 3000Hz. The first should trigger the "turn on
 red lights" condition, the second should trigger the yellow lights, third green, and fourth blue.
 
 My next test, once I knew the algorithm was working properly, was to make sure my rppal code was working as well. I did this in

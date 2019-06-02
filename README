@@ -5,13 +5,18 @@ OVERVIEW:
 
 Raspberry Pi B+ Raver Cube
 
-For my project, I'm building a 4x4x4 LED cube with gradient colors. If I get far enough with the hardware, each light will be
-uniquely addressable (else, each column of lights will be). The cube will be connected via ribbon cable to raspberry pi B+ GPIO pins. 
+For my project, I'm building a 4x4x4 LED cube with gradient colors. Each layer of the cube will have 4 sets of 4 LED 
+lights soldered together. Each set will be uniquely addressable (16 unique addresses). The cube will be connected via 
+ribbon cable to raspberry pi B+ GPIO pins. 
 
-The raspberry pi will be running software I've written which takes a wav file as input. It parses the wav file into samples, and reads
-odd samples at a rate of ~0.5 seconds. It utilizes the Goertzel algorithm to determine the frequency of the sine wave (tone) for each
-read sample, and based on the range of the frequency, lights up a particular set of colors on the cube again via GPIO. I will be using
-a GPIO crate for Rust. 
+The raspberry pi will be running software which takes a wav file as input and transforms it into a vector of samples. 
+This vector of samples will be subdivided into a vector of vectors of samples, each of which has approximately one second
+of music's worth of samples, based on the length of the song.
+
+I use RustFFT to perform a fast fourier transform (FFT) on each chunk of samples, deconstructing the sine wave into the 
+individual tones it is comprised of. I select the highest of these tones, and turn on the appropriate colored lights on
+the cube. Lowest tones are red, low-middle are yellow, middle-high are green, and high are blue. 
+
 ----------
 SOFTWARE:
 

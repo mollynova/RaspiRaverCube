@@ -1,3 +1,6 @@
+Raspberry Pi Raver Cube
+Author: Molly Novash
+
 OVERVIEW:
 
 Raspberry Pi B+ Raver Cube
@@ -95,3 +98,13 @@ connected the middle transistor pin on a single row of lights to a GPIO pin on m
 that would use rppal syntax to set that particular GPIO pin to "output" mode, and turn on the lights. 
 
 Once I'd gotten the algorithm working and the lights triggering correctly, everything else was basically just repetition. 
+
+---------------
+Works sampled / some lines of code pulled from:
+
+https://rickyhan.com/jekyll/update/2018/02/06/rust-guitar-pedal-effects-dsp.html
+http://siciarz.net/24-days-rust-hound/
+
+---------------
+Special thanks to Christopher Clark and the EPL for their help with the hardware end of this project.
+
